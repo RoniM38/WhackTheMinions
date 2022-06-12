@@ -38,23 +38,21 @@ class Hole:
 
 
 class Hammer:
-    def __init__(self, surface, x, y, velocity):
+    def __init__(self, surface, x, y):
         self.surface = surface
         self.x = x
         self.y = y
-        self.velocity = velocity
 
-    def draw(self):
-        mx, my = pygame.mouse.get_pos()
-        hammer_pos = (self.x, self.y)
-        hammer_rect = hammer_img.get_rect(center=hammer_pos)
+    def draw(self, hammer_hit):
+        if hammer_hit:
+            hammer_pos = (self.x, self.y)
+            hammer_rect = hammer_img.get_rect(center=hammer_pos)
 
-        dx, dy = mx - hammer_rect.centerx, my - hammer_rect.centery
-        angle = math.degrees(math.atan2(-dy, dx)) - 90
-
-        rot_image = pygame.transform.rotate(hammer_img, angle)
-        rot_image_rect = rot_image.get_rect(center=hammer_rect.center)
-        window.blit(rot_image, rot_image_rect.topleft)
+            rot_image = pygame.transform.rotate(hammer_img, 90)
+            rot_image_rect = rot_image.get_rect(center=hammer_rect.center)
+            self.surface.blit(rot_image, rot_image_rect.topleft)
+        else:
+            self.surface.blit(hammer_img, pygame.mouse.get_pos())
 
 
 def main():
@@ -70,7 +68,10 @@ def main():
 
     clock = pygame.time.Clock()
     hammer_x, hammer_y = window.get_rect().center
-    hammer = Hammer(window, hammer_x, hammer_y, 5)
+    hammer = Hammer(window, hammer_x, hammer_y)
+    hammer_hit = False
+
+    hit_start = None
 
     run = True
     while run:
@@ -82,8 +83,13 @@ def main():
                 if event.key == pygame.K_q:
                     menu()
 
-            # if event.type == pygame.MOUSEMOTION:
-            #     hammer.x, hammer.y = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                hammer_hit = True
+                hit_start = pygame.time.get_ticks()
+
+            if event.type == pygame.MOUSEMOTION:
+                if not hammer_hit:
+                    hammer.x, hammer.y = pygame.mouse.get_pos()
 
         window.fill(LIGHT_YELLOW)
         clock.tick(60)
@@ -91,7 +97,12 @@ def main():
         for hole in holes:
             hole.draw()
 
-        hammer.draw()
+        hammer.draw(hammer_hit)
+
+        if hit_start is not None:
+            now = pygame.time.get_ticks()
+            if now - hit_start >= 300:
+                hammer_hit = False
 
         pygame.display.update()
 
