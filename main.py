@@ -27,6 +27,7 @@ hammer_img = pygame.transform.scale(pygame.image.load("Images/hammer.png"), (120
 
 laughing_img1 = pygame.transform.scale(pygame.image.load("Images/minions_laughing1.png"), WINDOW_SIZE)
 laughing_img2 = pygame.transform.scale(pygame.image.load("Images/minions_laughing2.png"), WINDOW_SIZE)
+cheering_img = pygame.transform.scale(pygame.image.load("Images/minions_cheering.png"), (518, 388))
 
 heart_img = pygame.image.load("Images/heart.png")
 
@@ -78,6 +79,35 @@ def choose_hole(holes):
     i = random.randrange(len(holes) - 1)
     holes.append(holes.pop(i))
     return holes[-1]
+
+
+def victory(score):
+    title_font = pygame.font.SysFont("Berlin Sans FB Demi", 100, "bold")
+    subtitle_font = pygame.font.SysFont("Arial", 30, "bold")
+    subtitle_label = subtitle_font.render("Congrats! You've completed all 5 levels!", True, BLACK)
+
+    run = True
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    menu()
+
+        window.fill(WHITE)
+        window.blit(cheering_img, (190, 170))
+
+        window.blit(title_font.render("VICTORY", True, BLACK), (240, 10))
+        window.blit(subtitle_label, (180, 110))
+        window.blit(subtitle_font.render(f"SCORE:{score};", True, BLACK), (230, 150))
+        window.blit(subtitle_font.render("press p to play again", True, BLACK), (420, 147))
+
+        pygame.display.update()
+
+    pygame.quit()
+    sys.exit(0)
 
 
 def game_over():
@@ -247,8 +277,8 @@ def main():
             minion_count = 0
             minions_hit = 0
             pop_wait -= 200
-        elif level > 5:
-            pass
+        elif level == 6:
+            victory(score)
 
         pygame.display.update()
 
